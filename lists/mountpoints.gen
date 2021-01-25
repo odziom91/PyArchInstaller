@@ -1,0 +1,9 @@
+/
+/boot
+/boot/efi
+/home
+/tmp
+/var
+/var/log
+/opt
+swap

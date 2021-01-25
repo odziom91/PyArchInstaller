@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Install Arch Linux
+Comment=Install Arch Linux
+Exec=python3 /root/pyarchinstaller/PyArchInstaller.py
+Icon=/root/pyarchinstaller/gfx/arcolinux-hello.svg
+Path=/root/pyarchinstaller/
+Terminal=false
+StartupNotify=false
