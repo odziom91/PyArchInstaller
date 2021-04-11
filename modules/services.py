@@ -14,7 +14,7 @@ from PySimpleGUI import PySimpleGUI as sg
 def pai_services():
     ans = True
     while ans:
-        sg.SetOptions(font=("Liberation Sans", 12), margins=(0, 0))
+        sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
         sg.theme("Dark")
         logo = [
             [sg.Image("./gfx/small_logo.png")]
@@ -26,18 +26,19 @@ def pai_services():
             [sg.Checkbox("Wi-Fi - obsługa bezprzewodowego połączenia sieciowego", key="s_wifi")],
             [sg.Checkbox("PPPoE - obsługa połączeń sieciowych PPPoE (np.: ADSL/VDSL)", key="s_pppoe")],
             [sg.Checkbox("Mobile - obsługa połączeń przy pomocy sieci komórkowej", key="s_mobile")],
+            [sg.Checkbox("Bluetooth - obsługa urządzeń Bluetooth", key="s_bt")],
             [sg.Checkbox("Usługa CUPS - serwer druku do obsługi drukarek", key="s_cups")],
             [sg.Checkbox("Multilib - repozytorium z pakietami 32-bitowymi", key="s_multilib")]
         ]
         save_settings = [
-            [sg.Button("Zapisz ustawienia", size=(55, 1), pad=((4, 4), (0, 4)), key="btn_save")]
+            [sg.Button("Zapisz ustawienia", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
         ]
         gui = [
             [sg.Column(layout=logo)],
             [sg.Column(layout=services)],
             [sg.Column(layout=save_settings)]
         ]
-        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(520, 420))
+        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(600, 520), location=(100, 100))
         while True:
             event, values = window.read()
             if event == sg.WIN_CLOSED:
@@ -46,7 +47,6 @@ def pai_services():
             if event == "btn_save":
                 try:
                     ans = False
-                    config = configparser.ConfigParser()
                     if values["s_nm"]:
                         nm = "true"
                     else:
@@ -67,6 +67,10 @@ def pai_services():
                         mobile = "true"
                     else:
                         mobile = "false"
+                    if values["s_bt"]:
+                        bt = "true"
+                    else:
+                        bt = "false"
                     if values["s_cups"]:
                         cups = "true"
                     else:
@@ -75,16 +79,18 @@ def pai_services():
                         multilib = "true"
                     else:
                         multilib = "false"
-                    config['Services'] = {
-                        'nm': nm,
-                        'dhcp': dhcp,
-                        'wifi': wifi,
-                        'pppoe': pppoe,
-                        'mobile': mobile,
-                        'cups': cups,
-                        'multilib': multilib
-                        }
-                    with open('config/services.cfg', 'w') as configfile:
+                    config = configparser.ConfigParser()
+                    config.read("config/settings.cfg")
+                    config.set('Services', 'nm', nm)
+                    config.set('Services', 'dhcp', dhcp)
+                    config.set('Services', 'wifi', wifi)
+                    config.set('Services', 'pppoe', pppoe)
+                    config.set('Services', 'mobile', mobile)
+                    config.set('Services', 'bluetooth', bt)
+                    config.set('Services', 'cups', cups)
+                    config.set('Services', 'multilib', multilib)
+                    config.set('Summary', 'Services', 'True')
+                    with open('config/settings.cfg', 'w') as configfile:
                         config.write(configfile)
                 except Exception as e:
                     print(str(e))

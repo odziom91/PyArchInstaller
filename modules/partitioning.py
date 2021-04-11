@@ -15,7 +15,7 @@ def pai_mount(part, size, fstype):
     mp = open("./lists/mountpoints.gen", "r").read().split("\n")
     ans = True
     while ans:
-        sg.SetOptions(font=("Liberation Sans", 12), margins=(0, 0))
+        sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
         sg.theme("Dark")
         wnd = [
             [sg.Text("Wybrałeś dysk: " + part)],
@@ -31,7 +31,7 @@ def pai_mount(part, size, fstype):
             [sg.Column(layout=wnd)],
             [sg.Column(layout=save_settings)]
         ]
-        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(320, 200))
+        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(320, 200), location=(100, 100))
         while True:
             event, values = window.read()
             if event == sg.WIN_CLOSED or event == "btn_cancel":
@@ -58,7 +58,7 @@ def pai_umount(mountpoint):
         print(str(e))
         
 
-def pai_partitioning(efi):
+def pai_partitioning():
     lsblk = subprocess.check_output("lsblk -np --output PATH,SIZE,FSTYPE,TYPE,MOUNTPOINT", shell=True).decode("utf-8").splitlines()
     lsblk_grub = subprocess.check_output("lsblk -npd --output PATH,MODEL,SIZE", shell=True).decode("utf-8").splitlines()
     part = []
@@ -71,21 +71,21 @@ def pai_partitioning(efi):
             grub_disk.append(line)
     ans = True
     while ans:
-        sg.SetOptions(font=("Liberation Sans", 12), margins=(0, 0))
+        sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
         sg.theme("Dark")
         logo = [
             [sg.Image("./gfx/small_logo.png")]
         ]
         gparted = [
             [sg.Text("Utwórz partycje przy pomocy narzędzia 'gparted': ", size=(55, 1))],
-            [sg.Button("Uruchom 'gparted'", size=(55, 1), pad=((4, 4), (0, 4)), key="btn_gparted")],
+            [sg.Button("Uruchom 'gparted'", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_gparted")],
         ]
         mount = [
             [sg.Text("Dostępne partycje: ", size=(35, 1))],
-            [sg.Listbox(part,  size=(50, 10), font=("Monospace Regular", 12), enable_events=True, key="partitions")],
-            [sg.Button("Zamontuj", size=(10, 1), pad=((4, 4), (0, 4)), key="btn_mount"), sg.Button("Odmontuj", size=(10, 1), pad=((4, 4), (0, 4)), key="btn_umount")]
+            [sg.Listbox(part,  size=(57, 7), font=("Monospace Regular", 12), enable_events=True, key="partitions")],
+            [sg.Button("Zamontuj", size=(26, 1), pad=((4, 4), (0, 4)), key="btn_mount"), sg.Button("Odmontuj", size=(26, 1), pad=((4, 4), (0, 4)), key="btn_umount")]
         ]
-        if efi == True:
+        if int(subprocess.check_output("ls /sys/firmware/efi/efivars | wc -l", shell=True)) > 1:
             grub = [
                 [sg.Text("Wykryto instalację z wykorzystaniem UEFI.", size=(55, 1))],
                 [sg.Text("Nie znaleziono poprawnie zamontowanej partycji EFI!", key="efi", size=(55, 1), text_color="red")]
@@ -96,7 +96,7 @@ def pai_partitioning(efi):
                 [sg.Combo(values=grub_disk, enable_events=True, key="grub", size=(55, 1))]
             ]
         exit_settings = [
-            [sg.Button("Zapisz ustawienia", size=(55, 1), pad=((4, 4), (0, 4)), key="btn_save")]
+            [sg.Button("Zapisz ustawienia", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
         ]
         gui = [
             [sg.Column(layout=logo)],
@@ -105,13 +105,13 @@ def pai_partitioning(efi):
             [sg.Column(layout=grub)],
             [sg.Column(layout=exit_settings)]
         ]
-        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(480, 580))
+        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(600, 520), location=(100, 100))
         while True:
-            if efi == True:
+            if int(subprocess.check_output("ls /sys/firmware/efi/efivars | wc -l", shell=True)) > 1:
                 check_bootpart = subprocess.check_output("lsblk -np --output PATH,MOUNTPOINT", shell=True).decode("utf-8").splitlines()
                 for line in check_bootpart:
                     if ("/mnt/boot" in line) or ("/mnt/boot/efi" in line) and ("vfat" in line):
-                        window.Element("efi").update(values="Znaleziono zamontowaną poprawnie partycję EFI.", text_color="white")
+                        window.Element("efi").update(value="Znaleziono zamontowaną poprawnie partycję EFI.", text_color="white")
             event, values = window.read()
             if event == sg.WIN_CLOSED:
                 ans = False
@@ -154,16 +154,16 @@ def pai_partitioning(efi):
             if event == "btn_save":
                 try:
                     ans = False
-                    config = configparser.ConfigParser()
-                    if efi == True:
+                    if int(subprocess.check_output("ls /sys/firmware/efi/efivars | wc -l", shell=True)) > 1:
                         part_grub = 'efi'
                     else:
                         sel_grub_split = str(values["grub"]).split()
                         part_grub = sel_grub_split[0]
-                    config['Partitioning'] = {
-                        'grub': part_grub
-                        }
-                    with open('config/part.cfg', 'w') as configfile:
+                    config = configparser.ConfigParser()
+                    config.read("config/settings.cfg")
+                    config.set('Grub', 'grub', part_grub)
+                    config.set('Summary', 'Grub', 'True')
+                    with open('config/settings.cfg', 'w') as configfile:
                         config.write(configfile)
                 except Exception as e:
                     print(str(e))

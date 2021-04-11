@@ -16,7 +16,7 @@ def pai_users():
     ans = True
 
     while ans:
-        sg.SetOptions(font=("Liberation Sans", 12), margins=(0, 0))
+        sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
         sg.theme("Dark")
         logo = [
             [sg.Image("./gfx/small_logo.png")]
@@ -25,19 +25,19 @@ def pai_users():
             [sg.Text("Konfiguracja roota: ", size=(35, 1))],
             [sg.Text("Hasło: ", size=(24, 1)), sg.InputText("", enable_events=True, key="rootpwd", size=(32, 1))],
             [sg.Text("Powtórz hasło: ", size=(24, 1)), sg.InputText("", enable_events=True, key="r_rootpwd", size=(32, 1))],
-            [sg.Button("Skonfiguruj hasło roota", size=(55, 1), pad=((4, 4), (0, 4)), key="btn_root", enable_events=True)],
+            [sg.Button("Skonfiguruj hasło roota", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_root", enable_events=True)],
             [sg.Text("Konfiguracja użytkownika: ", size=(35, 1))],
             [sg.Text("Nazwa użytkownika: ", size=(25,1)), sg.InputText("", enable_events=True, key="username", size=(32, 1))],
             [sg.Text("Hasło: ", size=(25,1)), sg.InputText("", enable_events=True, key="userpwd", size=(32, 1))],
             [sg.Text("Powtórz hasło: ", size=(25,1)), sg.InputText("", enable_events=True, key="r_userpwd", size=(32, 1))],
             [sg.Checkbox("Użytkownik z uprawnieniami administratora", key="admin")],
-            [sg.Button("Skonfiguruj użytkownika", size=(55, 1), pad=((4, 4), (0, 4)), key="btn_user", enable_events=True)]
+            [sg.Button("Skonfiguruj użytkownika", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_user", enable_events=True)]
         ]
         gui = [
             [sg.Column(layout=logo)],
             [sg.Column(layout=users)]
         ]
-        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(450, 420))
+        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(600, 520), location=(100, 100))
         while True:
             event, values = window.read()
             if event == sg.WIN_CLOSED:

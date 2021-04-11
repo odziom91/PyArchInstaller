@@ -14,7 +14,7 @@ from PySimpleGUI import PySimpleGUI as sg
 def pai_video():
     ans = True
     while ans:
-        sg.SetOptions(font=("Liberation Sans", 12), margins=(0, 0))
+        sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
         sg.theme("Dark")
         logo = [
             [sg.Image("./gfx/small_logo.png")]
@@ -29,14 +29,14 @@ def pai_video():
             [sg.Radio("VirtualBox", group_id=1, key="v_vbox", size=(15, 1), enable_events=True)],
         ]
         save_settings = [
-            [sg.Button("Zapisz ustawienia", size=(55, 1), pad=((4, 4), (0, 4)), key="btn_save")]
+            [sg.Button("Zapisz ustawienia", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
         ]
         gui = [
             [sg.Column(layout=logo)],
             [sg.Column(layout=video)],
             [sg.Column(layout=save_settings)]
         ]
-        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(450, 420))
+        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(600, 520), location=(100, 100))
         while True:
             event, values = window.read()
             if event == sg.WIN_CLOSED:
@@ -45,7 +45,6 @@ def pai_video():
             if event == "btn_save":
                 try:
                     ans = False
-                    config = configparser.ConfigParser()
                     if values["v_nvdkms"]:
                         set_video = "nvdkms"
                     if values["v_nvnodkms"]:
@@ -58,10 +57,11 @@ def pai_video():
                         set_video = "intel"
                     if values["v_vbox"]:
                         set_video = "vbox"
-                    config['Video'] = {
-                        'driver': set_video
-                        }
-                    with open('config/video.cfg', 'w') as configfile:
+                    config = configparser.ConfigParser()
+                    config.read("config/settings.cfg")
+                    config.set('Video', 'driver', set_video)
+                    config.set('Summary', 'Video', 'True')
+                    with open('config/settings.cfg', 'w') as configfile:
                         config.write(configfile)
                 except Exception as e:
                     print(str(e))

@@ -13,29 +13,125 @@ import time
 import subprocess
 from PySimpleGUI import PySimpleGUI as sg
 
-# install base + devel - ok
-# kernel - ok
-# "pacman -Syy" - ok
-# "pacstrap /mnt base base-devel linux linux-firmware linux-headers" - ok
-# system config:
-# locale, locale2 - ok
-# keymap - ok
-# timezone - ok
-# nm - ok
-# wifi - ok
-# pppoe - ok
-# mobile - ok
-# dhcp - ok
-# de - ok
-# dm - ok
-# video driver - ok
-# hostname - ok
-# multilib - ok
-# sudo i sudoers
+### desktops
+# gnome
+gnome_minimal = ["gnome", "xdg-user-dirs", "gvfs"]
+gnome_full = ["gnome", "gnome-extra", "xdg-user-dirs", "gvfs"]
+# plasma
+plasma_minimal = ["plasma", "xdg-user-dirs", "gvfs"]
+plasma_full = ["plasma", "kde-applications", "xdg-user-dirs", "gvfs"]
+# xfce
+xfce_minimal = ["xfce4", "xdg-user-dirs", "gvfs"]
+xfce_full = ["xfce4", "xfce4-goodies", "xdg-user-dirs", "gvfs"]
+# mate
+mate_minimal = ["mate", "xdg-user-dirs", "gvfs"]
+mate_full = ["mate", "mate-extra", "xdg-user-dirs", "gvfs"]
+# cinnammon
+cinnamon_full = ["cinnamon", "cinnamon-translations", "xdg-user-dirs", "gvfs"]
 
+### login managers
+# lightdm
+lightdm = ["lightdm", "lightdm-gtk-greeter", "lightdm-gtk-greeter-settings"]
+# gdm
+gdm = ["gdm"]
+# sddm
+sddm = ["sddm"]
 
-def c_hostname(hostname):
-    setup = open("output/hostname.sh", "a")
+### video drivers
+# vesa and mesa
+vesa_mesa = ["xf86-video-vesa", "mesa"]
+# nvidia
+nvidia_dkms = ["dkms", "nvidia-dkms", "nvidia-utils", "nvidia-settings"]
+nvidia = ["nvidia", "nvidia-utils", "nvidia-settings"]
+nouveau = ["xf86-video-nouveau"]
+# intel
+intel = ["xf86-video-intel"]
+# amd
+amd = ["xf86-video-amdgpu"]
+# virtualbox, vmware
+virtualbox = ["virtualbox-guest-utils", "xf86-video-vmware"]
+
+### display servers
+# xorg
+xorg = ["xorg-server", "xorg-xinit", "xorg-xrandr", "arandr", "xterm"]
+# wayland
+wayland = [""]
+
+### sound servers
+# pulseaudio
+pulseaudio = ["pulseaudio", "pulseaudio-alsa", "pavucontrol"]
+# pipewire
+pipewire = ["pipewire", "pipewire-alsa", "pipewire-pulse", "pipewire-jack", "pavucontrol"]
+
+### services
+# ntfs
+ntfs = ["ntfs-3g"]
+# cups
+cups = ["cups"]
+# network manager
+nm_other = ["networkmanager", "nm-connection-editor", "network-manager-applet"]
+nm_plasma = ["networkmanager", "nm-connection-editor", "plasma-nm"]
+# dhcp
+dhcp = ["dhcpcd"]
+# wifi
+wifi = ["wpa_supplicant", "dialog"]
+# pppoe
+pppoe = ["rp-pppoe"]
+# mobile
+mobile = ["modemmanager", "mobile-broadband-provider-info", "usb_modeswitch"]
+# bluetooth
+bluetooth = ["bluez bluez-utils"]
+blueman = ["blueman"]
+kbluetooth = ["blueman"]
+
+### addons
+# codecs
+codecs = ["mpg123", "libcdio"]
+# fonts
+fonts = ["ttf-inconsolata", "ttf-dejavu", "ttf-font-awesome", "ttf-joypixels"]
+
+### grub
+# grub - bios/legacy
+grub_bios = ["grub", "os-prober"]
+# grub - uefi
+grub_uefi = ["grub", "efibootmgr", "os-prober"]
+
+def pai_install(outfile, packages):
+    setup = open('output/' + outfile + '.sh', 'a')
+    setup.write('#!/bin/bash\n')
+    setup.write('pacman -S --noconfirm --needed --quiet ')
+    for package in packages:
+        setup.write(str(package) + ' ')
+    setup.write('\nexit\n')
+    setup.close()
+
+def pai_service(outfile, service):
+    setup = open('output/' + outfile + '.sh', 'a')
+    setup.write('#!/bin/bash\n')
+    setup.write('systemctl enable ' + service + '\n')
+    setup.write('exit\n')
+    setup.close()
+
+def pai_grub(outfile, part):
+    setup = open('output/' + outfile + '.sh', 'a')
+    setup.write('#!/bin/bash\n')
+    if part == "true":
+        setup.write("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch --recheck\n")
+    else:
+        setup.write("mkdir -p /boot/grub/\n")
+        setup.write("grub-install --target=i386-pc " + part + "\n")
+    setup.write("grub-mkconfig -o /boot/grub/grub.cfg\n")
+    setup.write("exit\n")
+    setup.close()
+
+def pai_chroot(filename):
+    subprocess.call('cp ./output/' + filename + '.sh /mnt', shell=True)
+    subprocess.call('chmod +x /mnt/' + filename + '.sh', shell=True)
+    subprocess.call('arch-chroot /mnt bash -c "./' + filename + '.sh"', shell=True)
+    subprocess.call('rm /mnt/' + filename + '.sh', shell=True)
+
+def pai_hostname(hostname):
+    setup = open('output/hostname.sh', 'a')
     setup.write('#!/bin/bash\n')
     setup.write('echo ' + hostname + ' > /etc/hostname\n')
     setup.write('echo "> /etc/hosts file"\n')
@@ -45,8 +141,8 @@ def c_hostname(hostname):
     setup.write('exit\n')
     setup.close()
 
-def c_timezone(tz):
-    setup = open("output/tz.sh", "a")
+def pai_timezone(tz):
+    setup = open('output/tz.sh', 'a')
     setup.write('#!/bin/bash\n')
     setup.write('rm -rf /etc/localtime\n')
     setup.write('ln -sf /usr/share/zoneinfo/' + tz + ' /etc/localtime\n')
@@ -56,11 +152,11 @@ def c_timezone(tz):
     setup.write('exit\n')
     setup.close()
 
-def c_lang(lang):
+def pai_lang(lang):
     locale = lang
     split = lang.split(" ")
     locale2 = split[0]
-    setup = open("output/lang.sh", "a")
+    setup = open('output/lang.sh', 'a')
     setup.write('#!/bin/bash\n')
     setup.write('echo "' + locale + '" >> /etc/locale.gen\n')
     setup.write('locale-gen\n')
@@ -69,8 +165,8 @@ def c_lang(lang):
     setup.write('exit\n')
     setup.close()
 
-def c_kbd(kbd):
-    setup = open("output/kbd.sh", "a")
+def pai_kbd(kbd):
+    setup = open('output/kbd.sh', 'a')
     setup.write('#!/bin/bash\n')
     setup.write('localectl --no-convert set-x11-keymap ' + kbd + '\n')
     setup.write('echo KEYMAP=' + kbd + ' > /etc/vconsole.conf\n')
@@ -78,352 +174,314 @@ def c_kbd(kbd):
     setup.write('exit\n')
     setup.close()
 
-def c_nm(nm, de):
-    setup = open("output/nm.sh", "a")
-    setup.write('#!/bin/bash\n')
-    if nm == "true":
-        setup.write('pacman -S --noconfirm --quiet networkmanager nm-connection-editor\n')
-        setup.write('systemctl enable NetworkManager.service\n')
-        if de == "plasma":
-            setup.write('pacman -S --noconfirm --quiet plasma-nm\n')
-        else:
-            setup.write('pacman -S --noconfirm --quiet network-manager-applet\n')
-    setup.write('exit\n')
-    setup.close()
-
-def c_dhcp(dhcp):
-    setup = open("output/dhcp.sh", "a")
-    setup.write('#!/bin/bash\n')
-    if dhcp == "true":
-        setup.write('pacman -S --noconfirm --quiet dhcpcd\n')
-        setup.write('systemctl enable dhcpcd.service\n')
-    setup.write('exit\n')
-    setup.close()
-
-def c_wifi(wifi):
-    setup = open("output/wifi.sh", "a")
-    setup.write('#!/bin/bash\n')
-    if wifi == "true":
-        setup.write('pacman -S --noconfirm --quiet wpa_supplicant dialog\n')
-    setup.write('exit\n')
-    setup.close()
-
-def c_pppoe(pppoe):
-    setup = open("output/pppoe.sh", "a")
-    setup.write('#!/bin/bash\n')
-    if pppoe == "true":
-        setup.write('pacman -S --noconfirm --quiet rp-pppoe\n')
-    setup.write('exit\n')
-    setup.close()
-
-def c_mobile(mobile):
-    setup = open("output/mobile.sh", "a")
-    setup.write('#!/bin/bash\n')
-    if mobile == "true":
-        setup.write('pacman -S --noconfirm --quiet modemmanager mobile-broadband-provider-info usb_modeswitch\n')
-    setup.write('exit\n')
-    setup.close()
-
-def c_de(de):
-    setup = open("output/de.sh", "a")
-    setup.write('#!/bin/bash\n')
-    if de == "gnome":
-        setup.write('pacman -S --noconfirm --quiet gnome gnome-extra\n')
-        setup.write('pacman -S --noconfirm --quiet ttf-inconsolata ttf-dejavu ttf-font-awesome ttf-joypixels xdg-user-dirs\n')
-        setup.write('pacman -S --noconfirm --quiet pulseaudio pulseaudio-alsa pavucontrol mpg123 libcdio gvfs\n')
-    if de == "plasma":
-        setup.write('pacman -S --noconfirm --quiet plasma\n')
-        setup.write('pacman -S --noconfirm --quiet kde-applications gvfs\n')
-        #setup.write('pacman -S --needed --noconfirm --quiet sddm\n')
-    if de == "xfce":
-        setup.write('pacman -S --noconfirm --quiet xfce4 xfce4-goodies\n')
-        setup.write('pacman -S --noconfirm --quiet ttf-inconsolata ttf-dejavu ttf-font-awesome ttf-joypixels xdg-user-dirs\n')
-        setup.write('pacman -S --noconfirm --quiet pulseaudio pulseaudio-alsa pavucontrol mpg123 libcdio gvfs\n')
-    if de == "mate":
-        setup.write('pacman -S --noconfirm --quiet mate mate-extra\n')
-        setup.write('pacman -S --noconfirm --quiet ttf-inconsolata ttf-dejavu ttf-font-awesome ttf-joypixels xdg-user-dirs\n')
-        setup.write('pacman -S --noconfirm --quiet pulseaudio pulseaudio-alsa pavucontrol mpg123 libcdio gvfs\n')
-    if de == "cinnamon":
-        setup.write('pacman -S --noconfirm --quiet cinnamon\n')
-        setup.write('pacman -S --noconfirm --quiet cinnamon-translations\n')
-        setup.write('pacman -S --noconfirm --quiet ttf-inconsolata ttf-dejavu ttf-font-awesome ttf-joypixels xdg-user-dirs\n')
-        setup.write('pacman -S --noconfirm --quiet pulseaudio pulseaudio-alsa pavucontrol mpg123 libcdio gvfs\n')
-    setup.write('exit\n')
-    setup.close()
-
-def c_lm(lm):
-    setup = open("output/lm.sh", "a")
-    setup.write('#!/bin/bash\n')
-    if lm == "lightdm":
-        setup.write('pacman -S --noconfirm --quiet lightdm\n')
-        setup.write('pacman -S --noconfirm --quiet lightdm-gtk-greeter lightdm-gtk-greeter-settings\n')
-        setup.write('systemctl enable lightdm.service\n')
-    if lm == "gdm":
-        setup.write('pacman -S --noconfirm --quiet gdm\n')
-        setup.write('systemctl enable gdm\n')
-    setup.write('exit\n')
-    setup.close()
-
-def c_video(video):
-    setup = open("output/video.sh", "a")
-    setup.write('#!/bin/bash\n')
-    setup.write('pacman -S --noconfirm --quiet xf86-video-vesa\n')
-    setup.write('pacman -S --noconfirm --quiet mesa\n')
-    if video == "nvdkms":
-        setup.write('pacman -S --noconfirm --quiet dkms nvidia-dkms nvidia-utils nvidia-settings\n')
-    if video == "nvnodkms":
-        setup.write('pacman -S --noconfirm --quiet nvidia nvidia-utils nvidia-settings\n')
-    if video == "nouveau":
-        setup.write('pacman -S --noconfirm --quiet xf86-video-nouveau\n')
-    if video == "intel":
-        setup.write('pacman -S --noconfirm --quiet xf86-video-intel\n')
-    if video == "amd":
-        setup.write('pacman -S --noconfirm --quiet xf86-video-amdgpu\n')
-    if video == "vbox":
-        setup.write('pacman -S --noconfirm --quiet virtualbox-guest-utils xf86-video-vmware\n')
-        setup.write('systemctl enable vboxservice.service\n')
-    setup.write('pacman -S --noconfirm --quiet xorg-server xorg-xinit xorg-xrandr arandr xterm\n')
-    setup.write('exit\n')
-    setup.close()
-
-def c_ntfs():
-    setup = open("output/ntfs.sh", "a")
-    setup.write('#!/bin/bash\n')
-    setup.write('pacman -S --noconfirm --quiet ntfs-3g\n')
-    setup.write('exit\n')
-    setup.close()
-
-def c_cups(cups):
-    setup = open("output/cups.sh", "a")
-    setup.write('#!/bin/bash\n')
-    if cups == "true":
-        setup.write('pacman -S --noconfirm --quiet cups\n')
-        setup.write('systemctl enable cupsd.service\n')
-    setup.write('exit\n')
-    setup.close()
-
-def c_grub(efi, grub):
-    setup = open("output/grub.sh", "a")
-    setup.write('#!/bin/bash\n')
-    if efi == True:
-        setup.write("pacman -S --noconfirm --quiet grub efibootmgr os-prober\n")
-        setup.write("grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch --recheck\n")
-    else:
-        setup.write("pacman -S --noconfirm --quiet grub os-prober\n")
-        setup.write("mkdir -p /boot/grub/\n")
-        setup.write("grub-install --target=i386-pc " + grub + "\n")
-    setup.write("grub-mkconfig -o /boot/grub/grub.cfg\n")
-    setup.write("exit\n")
-    setup.close()
-
-def c_update_repo():
-    setup = open("output/update_repo.sh", "a")
+def pai_update_repo():
+    setup = open('output/update_repo.sh', 'a')
     setup.write('#!/bin/bash\n')
     setup.write('pacman -Syy\n')
-    setup.write("exit\n")
+    setup.write('exit\n')
     setup.close()
 
-def prepare_chroot():
-    subprocess.call("cp ./output/hostname.sh /mnt/hostname.sh", shell=True)
-    subprocess.call("chmod +x /mnt/hostname.sh", shell=True)
-    subprocess.call("cp ./output/tz.sh /mnt/tz.sh", shell=True)
-    subprocess.call("chmod +x /mnt/tz.sh", shell=True)
-    subprocess.call("cp ./output/lang.sh /mnt/lang.sh", shell=True)
-    subprocess.call("chmod +x /mnt/lang.sh", shell=True)
-    subprocess.call("cp ./output/kbd.sh /mnt/kbd.sh", shell=True)
-    subprocess.call("chmod +x /mnt/kbd.sh", shell=True)
-    subprocess.call("cp ./output/nm.sh /mnt/nm.sh", shell=True)
-    subprocess.call("chmod +x /mnt/nm.sh", shell=True)
-    subprocess.call("cp ./output/dhcp.sh /mnt/dhcp.sh", shell=True)
-    subprocess.call("chmod +x /mnt/dhcp.sh", shell=True)
-    subprocess.call("cp ./output/wifi.sh /mnt/wifi.sh", shell=True)
-    subprocess.call("chmod +x /mnt/wifi.sh", shell=True)
-    subprocess.call("cp ./output/pppoe.sh /mnt/pppoe.sh", shell=True)
-    subprocess.call("chmod +x /mnt/pppoe.sh", shell=True)
-    subprocess.call("cp ./output/mobile.sh /mnt/mobile.sh", shell=True)
-    subprocess.call("chmod +x /mnt/hostname.sh", shell=True)
-    subprocess.call("cp ./output/de.sh /mnt/de.sh", shell=True)
-    subprocess.call("chmod +x /mnt/de.sh", shell=True)
-    subprocess.call("cp ./output/lm.sh /mnt/lm.sh", shell=True)
-    subprocess.call("chmod +x /mnt/lm.sh", shell=True)
-    subprocess.call("cp ./output/video.sh /mnt/video.sh", shell=True)
-    subprocess.call("chmod +x /mnt/video.sh", shell=True)
-    subprocess.call("cp ./output/ntfs.sh /mnt/ntfs.sh", shell=True)
-    subprocess.call("chmod +x /mnt/ntfs.sh", shell=True)
-    subprocess.call("cp ./output/cups.sh /mnt/cups.sh", shell=True)
-    subprocess.call("chmod +x /mnt/cups.sh", shell=True)
-    subprocess.call("cp ./output/grub.sh /mnt/grub.sh", shell=True)
-    subprocess.call("chmod +x /mnt/grub.sh", shell=True)
-    subprocess.call("cp ./output/update_repo.sh /mnt/update_repo.sh", shell=True)
-    subprocess.call("chmod +x /mnt/update_repo.sh", shell=True)
-
-def remove_chroot():
-    subprocess.call("rm /mnt/hostname.sh", shell=True)
-    subprocess.call("rm /mnt/tz.sh", shell=True)
-    subprocess.call("rm /mnt/lang.sh", shell=True)
-    subprocess.call("rm /mnt/kbd.sh", shell=True)
-    subprocess.call("rm /mnt/nm.sh", shell=True)
-    subprocess.call("rm /mnt/dhcp.sh", shell=True)
-    subprocess.call("rm /mnt/wifi.sh", shell=True)
-    subprocess.call("rm /mnt/pppoe.sh", shell=True)
-    subprocess.call("rm /mnt/mobile.sh", shell=True)
-    subprocess.call("rm /mnt/de.sh", shell=True)
-    subprocess.call("rm /mnt/lm.sh", shell=True)
-    subprocess.call("rm /mnt/video.sh", shell=True)
-    subprocess.call("rm /mnt/ntfs.sh", shell=True)
-    subprocess.call("rm /mnt/cups.sh", shell=True)
-    subprocess.call("rm /mnt/grub.sh", shell=True)
-    subprocess.call("rm /mnt/update_repo.sh", shell=True)
-
-def pai_prepare(efi):
-    #
-    # odczyt plików
-    #
-    config = configparser.ConfigParser()
-    config.read("config/config.cfg")
-    de = configparser.ConfigParser()
-    de.read("config/de.cfg")
-    services = configparser.ConfigParser()
-    services.read("config/services.cfg")
-    video = configparser.ConfigParser()
-    video.read("config/video.cfg")
-    part = configparser.ConfigParser()
-    part.read("config/part.cfg")
-    # config
-    hostname = config["General"]["hostname"]
-    lang = config["General"]["lang"]
-    kbd = config["General"]["kbd"]
-    tz = config["General"]["tz"]
-    # de
-    desktop = de["Desktop Environment"]["de"]
-    lm = de["Desktop Environment"]["lm"]
-    # services
-    nm = services["Services"]["nm"]
-    dhcp = services["Services"]["dhcp"]
-    wifi = services["Services"]["wifi"]
-    pppoe = services["Services"]["pppoe"]
-    mobile = services["Services"]["mobile"]
-    cups = services["Services"]["cups"]
-    # video
-    v_driver = video["Video"]["driver"]
-    # part
-    grub = part["Partitioning"]["grub"]
-    #
-    #   przygotowanie skryptów
-    #
-    c_hostname(hostname)
-    c_timezone(tz)
-    c_lang(lang)
-    c_kbd(kbd)
-    c_nm(nm, desktop)
-    c_dhcp(dhcp)
-    c_wifi(wifi)
-    c_pppoe(pppoe)
-    c_mobile(mobile)
-    c_de(desktop)
-    c_lm(lm)
-    c_video(v_driver)
-    c_ntfs()
-    c_cups(cups)
-    c_grub(efi, grub)
-    c_update_repo()
-    prepare_chroot()
-
-
-
-def i_installation(efi, window):
+def pai_installation(window):
+    ###
+    ### start installation
+    ###
     window["-PROBAR-"].update_bar(0)
     window["-STATUS-"].update("Status: Przygotowanie do instalacji")
+
+    #################################################################
+    #                                                               #
+    #                       NON-CHROOT PART                         #
+    #                                                               #
+    #################################################################
+
+    ###
+    ### read configs
+    ###
+    # read config file
     config = configparser.ConfigParser()
-    config.read("config/config.cfg")
-    services = configparser.ConfigParser()
-    services.read("config/services.cfg")
-    kernel = config["General"]["kernel"]
-    multilib = services["Services"]["multilib"]
-    pai_prepare(efi)
-    window["-PROBAR-"].update_bar(10)
+    config.read("config/settings.cfg")
+    # General
+    cfg_hostname = config["General"]["hostname"]
+    cfg_lang = config["General"]["lang"]
+    cfg_kbd = config["General"]["kbd"]
+    cfg_tz = config["General"]["tz"]
+    # Desktop
+    cfg_desktop = config["Desktop"]["de"]
+    cfg_lm = config["Desktop"]["lm"]
+    # Services
+    cfg_nm = config["Services"]["nm"]
+    cfg_dhcp = config["Services"]["dhcp"]
+    cfg_wifi = config["Services"]["wifi"]
+    cfg_pppoe = config["Services"]["pppoe"]
+    cfg_mobile = config["Services"]["mobile"]
+    cfg_bt = config["Services"]["bluetooth"]
+    cfg_cups = config["Services"]["cups"]
+    #cfg_ntfs = config["Services"]["ntfs"]
+    # Video
+    cfg_vdriver = config["Video"]["driver"]
+    # Grub
+    cfg_grub = config["Grub"]["grub"]
+    # Kernel
+    cfg_kernel = config["General"]["kernel"]
+    # Multilib
+    cfg_multilib = config["Services"]["multilib"]
+
+    ###
+    ### update repo before pacstrap
+    ### 
+    window["-PROBAR-"].update_bar(5)
     window["-STATUS-"].update("Status: Aktualizacja repozytoriów")
     subprocess.call("pacman -Syy --noconfirm --quiet archlinux-keyring", shell=True)
-    window["-PROBAR-"].update_bar(20)
+
+    ###
+    ### install base + kernel
+    ###
+    window["-PROBAR-"].update_bar(10)
     window["-STATUS-"].update("Status: Instalacja systemu - base+kernel - może potrwać kilka minut...")
-    if kernel == "stable":
+    if cfg_kernel == "stable":
         subprocess.call("pacstrap /mnt base base-devel linux linux-firmware linux-headers sudo nano dialog reflector", shell=True)
-    if kernel == "longterm":
+    if cfg_kernel == "longterm":
         subprocess.call("pacstrap /mnt base base-devel linux-lts linux-firmware linux-lts-headers sudo nano dialog reflector", shell=True)
-    if kernel == "zen":
+    if cfg_kernel == "zen":
         subprocess.call("pacstrap /mnt base base-devel linux-zen linux-firmware linux-zen-headers sudo nano dialog reflector", shell=True)
-    if kernel == "hardened":
+    if cfg_kernel == "hardened":
         subprocess.call("pacstrap /mnt base base-devel linux-hardened linux-firmware linux-hardened-headers sudo nano dialog reflector", shell=True)
-    window["-PROBAR-"].update_bar(40)
+
+    ###
+    ### generate fstab file
+    ###
+    window["-PROBAR-"].update_bar(15)
     window["-STATUS-"].update("Status: Generowanie pliku fstab")
     subprocess.call("genfstab -U /mnt >> /mnt/etc/fstab", shell=True)
-    window["-PROBAR-"].update_bar(45)
+    
+    ###
+    ### config mirrorlist
+    ###
+    window["-PROBAR-"].update_bar(20)
     window["-STATUS-"].update("Status: Konfiguracja mirrorlist")
     subprocess.call("cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist", shell=True)
     subprocess.call("pacman -Syy", shell=True)
-    if multilib == "true":
-        window["-PROBAR-"].update_bar(47)
+    # config multilib if enabled
+    if cfg_multilib == "true":
+        window["-PROBAR-"].update_bar(25)
         window["-STATUS-"].update("Status: Konfiguracja repozytorium multilib")
         subprocess.call("echo \"\" >> /mnt/etc/pacman.conf", shell=True)    
         subprocess.call("echo \"[multilib]\" >> /mnt/etc/pacman.conf", shell=True)
         subprocess.call("echo \"Include = /etc/pacman.d/mirrorlist\" >> /mnt/etc/pacman.conf", shell=True)
-    window["-PROBAR-"].update_bar(50)
+
+    #################################################################
+    #                                                               #
+    #                         CHROOT PART                           #
+    #                                                               #
+    #################################################################
+
+    ### update repo
+    window["-PROBAR-"].update_bar(30)
     window["-STATUS-"].update("Status: Aktualizacja repozytoriów")
-    subprocess.call("arch-chroot /mnt bash -c \"./update_repo.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(51)
+    pai_update_repo()
+    pai_chroot("update_repo")
+
+    ###
+    # Configuration
+    ###
+
+    ### config hostname
+    window["-PROBAR-"].update_bar(35)
     window["-STATUS-"].update("Status: Konfiguracja hostname")
-    subprocess.call("arch-chroot /mnt bash -c \"./hostname.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(52)
+    pai_hostname(cfg_hostname)
+    pai_chroot("hostname")
+    ### config timezone
+    window["-PROBAR-"].update_bar(40)
     window["-STATUS-"].update("Status: Konfiguracja strefy czasowej")
-    subprocess.call("arch-chroot /mnt bash -c \"./tz.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(53)
+    pai_timezone(cfg_tz)
+    pai_chroot("tz")
+    ### config language
+    window["-PROBAR-"].update_bar(45)
     window["-STATUS-"].update("Status: Konfiguracja lokalizacji systemowej")
-    subprocess.call("arch-chroot /mnt bash -c \"./lang.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(54)
-    window["-STATUS-"].update("Status: Instalacja Network Manager")
-    subprocess.call("arch-chroot /mnt bash -c \"./nm.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(60)
-    window["-STATUS-"].update("Status: Instalacja usługi DHCP")
-    subprocess.call("arch-chroot /mnt bash -c \"./dhcp.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(65)
-    window["-STATUS-"].update("Status: Instalacja obsługi sieci Wi-Fi")
-    subprocess.call("arch-chroot /mnt bash -c \"./wifi.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(70)
-    window["-STATUS-"].update("Status: Instalacja obsługi sieci PPPoE")
-    subprocess.call("arch-chroot /mnt bash -c \"./pppoe.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(75)
-    window["-STATUS-"].update("Status: Instalacja obsługi sieci komórkowych")
-    subprocess.call("arch-chroot /mnt bash -c \"./mobile.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(80)
+    pai_lang(cfg_lang)
+    pai_chroot("lang")
+
+    ###
+    # Software installation
+    ###
+
+    ### install desktop
+    window["-PROBAR-"].update_bar(50)
     window["-STATUS-"].update("Status: Instalacja środowiska graficznego")
-    subprocess.call("arch-chroot /mnt bash -c \"./de.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(85)
+    # desktop
+    if cfg_desktop == "gnome_minimal":
+        pai_install("de", gnome_minimal)
+    if cfg_desktop == "gnome":
+        pai_install("de", gnome_full)
+    if cfg_desktop == "plasma_minimal":
+        pai_install("de", plasma_minimal)
+    if cfg_desktop == "plasma":
+        pai_install("de", plasma_full)
+    if cfg_desktop == "xfce_minimal":
+        pai_install("de", xfce_minimal)
+    if cfg_desktop == "xfce":
+        pai_install("de", xfce_full)
+    if cfg_desktop == "mate_minimal":
+        pai_install("de", mate_minimal)
+    if cfg_desktop == "mate":
+        pai_install("de", mate_full)
+    if cfg_desktop == "cinnamon":
+        pai_install("de", cinnamon_full)
+    pai_chroot("de")
+    ### install login manager
+    window["-PROBAR-"].update_bar(55)
     window["-STATUS-"].update("Status: Instalacja menedżera logowania")
-    subprocess.call("arch-chroot /mnt bash -c \"./lm.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(90)
+    # login manager
+    if cfg_lm == "lightdm":
+        pai_install("lm", lightdm)
+        pai_service("lm_service", "lightdm.service")
+    if cfg_lm == "gdm":
+        pai_install("lm", gdm)
+        pai_service("lm_service", "gdm")
+    if cfg_lm == "sddm":
+        pai_install("lm", sddm)
+        pai_service("lm_service", "sddm")
+    pai_chroot("lm")
+    pai_chroot("lm_service")
+    ### install video driver
+    window["-PROBAR-"].update_bar(60)
     window["-STATUS-"].update("Status: Instalacja sterownika wideo")
-    subprocess.call("arch-chroot /mnt bash -c \"./video.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(91)
+    pai_install("vesa_mesa", vesa_mesa)
+    pai_install("xorg", xorg)
+    pai_chroot("vesa_mesa")
+    pai_chroot("xorg")
+    if cfg_vdriver == "nvdkms":
+        pai_install("video", nvidia_dkms)
+        pai_chroot("video")
+    if cfg_vdriver == "nvnodkms":
+        pai_install("video", nvidia)
+        pai_chroot("video")
+    if cfg_vdriver == "nouveau":
+        pai_install("video", nouveau)
+        pai_chroot("video")
+    if cfg_vdriver == "intel":
+        pai_install("video", intel)
+        pai_chroot("video")
+    if cfg_vdriver == "amd":
+        pai_install("video", amd)
+        pai_chroot("video")
+    if cfg_vdriver == "vbox":
+        pai_install("video", virtualbox)
+        pai_service("video_service", "vboxservice.service")
+        pai_chroot("video")
+        pai_chroot("video_service")
+    ### install sound server
+    window["-PROBAR-"].update_bar(65)
+    window["-STATUS-"].update("Status: Instalacja serwera dźwięku")
+    # todo pipewire support
+    pai_install("sound", pulseaudio)
+    pai_chroot("sound")
+    ### install codecs
+    window["-PROBAR-"].update_bar(70)
+    window["-STATUS-"].update("Status: Instalacja kodeków")
+    pai_install("codecs", codecs)
+    pai_chroot("codecs")
+    ### install fonts
+    window["-PROBAR-"].update_bar(75)
+    window["-STATUS-"].update("Status: Instalacja wymaganych czcionek")
+    pai_install("fonts", fonts)
+    
+    ###
+    # Services installation
+    ###
+
+    ### install network mananger
+    if cfg_nm == "true":
+        window["-PROBAR-"].update_bar(80)
+        window["-STATUS-"].update("Status: Instalacja Network Manager")
+        if "plasma" in cfg_desktop:
+            pai_install("nm", nm_plasma)
+            pai_service("nm_service", "NetworkManager.service")
+        else:
+            pai_install("nm", nm_other)
+            pai_service("nm_service", "NetworkManager.service")
+        pai_chroot("nm")
+        pai_chroot("nm_service")
+    ### install DHCP
+    if cfg_dhcp == "true":
+        window["-PROBAR-"].update_bar(81)
+        window["-STATUS-"].update("Status: Instalacja usługi DHCP")
+        pai_install("dhcp", dhcp)
+        pai_service("dhcp_service", "dhcpcd.service")
+        pai_chroot("dhcp")
+        pai_chroot("dhcp_service")
+    ### install wifi
+    if cfg_wifi == "true":
+        window["-PROBAR-"].update_bar(82)
+        window["-STATUS-"].update("Status: Instalacja obsługi sieci Wi-Fi")
+        pai_install("wifi", wifi)
+        pai_chroot("wifi")
+    ### install pppoe
+    if cfg_pppoe == "true":
+        window["-PROBAR-"].update_bar(83)
+        window["-STATUS-"].update("Status: Instalacja obsługi sieci PPPoE")
+        pai_install("pppoe", pppoe)
+        pai_chroot("pppoe")
+    ### install mobile
+    if cfg_mobile == "true":
+        window["-PROBAR-"].update_bar(84)
+        window["-STATUS-"].update("Status: Instalacja obsługi sieci komórkowych")
+        pai_install("mobile", mobile)
+        pai_chroot("mobile")
+    ### install bluetooth
+    if cfg_bt == "true":
+        window["-PROBAR-"].update_bar(85)
+        window["-STATUS-"].update("Status: Instalacja obsługi Bluetooth")
+        pai_install("bluetooth", bluetooth)
+        pai_service("bluetooth_service", "bluetooth")
+        pai_chroot("bluetooth")
+        pai_chroot("bluetooth_service")
+    ### install NTFS
+    window["-PROBAR-"].update_bar(86)
     window["-STATUS-"].update("Status: Instalacja obsługi plików NTFS")
-    subprocess.call("arch-chroot /mnt bash -c \"./ntfs.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(92)
-    window["-STATUS-"].update("Status: Instalacja serwera druku CUPS")
-    subprocess.call("arch-chroot /mnt bash -c \"./cups.sh\"", shell=True)
-    window["-PROBAR-"].update_bar(93)
+    pai_install("ntfs", ntfs)
+    pai_chroot("ntfs")
+    ### install CUPS
+    if cfg_cups == "true":
+        window["-PROBAR-"].update_bar(87)
+        window["-STATUS-"].update("Status: Instalacja serwera druku CUPS")
+        pai_install("cups", cups)
+        pai_service("cups_service", "cupsd.service")
+        pai_chroot("cups")
+        pai_chroot("cups_service")
+    ### keyboard layout configuration
+    window["-PROBAR-"].update_bar(90)
     window["-STATUS-"].update("Status: Konfiguracja klawiatury")
-    subprocess.call("arch-chroot /mnt bash -c \"./kbd.sh\"", shell=True)
+    pai_kbd(cfg_kbd)
+    pai_chroot("kbd")
+
+    ###
+    # Bootloader
+    ###
+
+    ### install bootloader
     window["-PROBAR-"].update_bar(95)
     window["-STATUS-"].update("Status: Instalacja bootloadera")
-    subprocess.call("arch-chroot /mnt bash -c \"./grub.sh\"", shell=True)
+    if int(subprocess.check_output("ls /sys/firmware/efi/efivars | wc -l", shell=True)) > 1:
+        pai_install("grub", grub_uefi)
+        pai_grub("grub_config", "true")
+    else:
+        pai_install("grub", grub_bios)
+        pai_grub("grub_config", cfg_grub)
+    pai_chroot("grub")
+    pai_chroot("grub_config")    
     window["-PROBAR-"].update_bar(100)
     window["-STATUS-"].update("Status: Instalacja zakończona!")
-    remove_chroot()
+    config.set('Summary', 'Installation', 'True')
+    with open('config/settings.cfg', 'w') as configfile:
+        config.write(configfile)
 
 
-def pai_install(efi):
+
+def pai_install_wnd():
     ans = True
     while ans:
-        sg.SetOptions(font=("Liberation Sans", 12), margins=(0, 0))
+        sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
         sg.theme("Dark")
         logo = [
             [sg.Image("./gfx/small_logo.png")]
@@ -434,14 +492,14 @@ def pai_install(efi):
             [sg.Text("", size=(62, 1), key='-STATUS-')]
         ]
         run_installer = [
-            [sg.Button("Rozpocznij instalację!", size=(62, 1), pad=((4, 4), (0, 4)), key="btn_run")]
+            [sg.Button("Rozpocznij instalację!", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_run")]
         ]
         gui = [
             [sg.Column(layout=logo)],
             [sg.Column(layout=install)],
             [sg.Column(layout=run_installer)]
         ]
-        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(600, 260))
+        window = sg.Window("PyArchInstaller", gui, finalize=True, size=(600, 520), location=(100, 100))
         while True:
             event, values = window.read()
             if event == sg.WIN_CLOSED:
@@ -451,7 +509,7 @@ def pai_install(efi):
                 try:
                     window.Element("btn_run").update(disabled=True)
                     ans = False
-                    x = threading.Thread(target=i_installation, args=(efi, window, ))
+                    x = threading.Thread(target=pai_installation, args=(window, ))
                     x.start()
                 except Exception as e:
                     print(str(e))

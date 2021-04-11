@@ -1,0 +1,24 @@
+# changelog
+
+## [0.2] - 2021-04-12
+### Added
+- First implementation of multilanguage support (only in main menu - test)
+- Minimal and Full instalation of each Desktop Environment (except Cinnamon)
+- Changelog to GIT repository
+
+### Changed
+- join multi-configuration files to one "settings.cfg" file
+- fonts
+- windows sizing and display
+- rebuild installer section
+- partitioning section in EFI mode repaired
+
+### Removed
+- unused variables
+- unused functions
+- unused files
+- comments cleanup
+
+## [0.1] - 2021-01-25
+### Added
+- Initial release
