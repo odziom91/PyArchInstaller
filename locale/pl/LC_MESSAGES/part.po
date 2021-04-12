@@ -1,0 +1,76 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-04-12 13:35+0200\n"
+"PO-Revision-Date: 2021-04-12 13:42+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"X-Poedit-Basepath: ../../../modules\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
+"|| n%100>14) ? 1 : 2);\n"
+"X-Poedit-SearchPath-0: partitioning.py\n"
+
+#: partitioning.py:25
+msgid "Choosed partition:"
+msgstr "Wybrana partycja:"
+
+#: partitioning.py:26
+msgid "Partition size:"
+msgstr "Rozmiar partycji:"
+
+#: partitioning.py:27
+msgid "Partition type:"
+msgstr "Typ partycji:"
+
+#: partitioning.py:28
+msgid "Choose mountpoint:"
+msgstr "Wybierz punkt montowania:"
+
+#: partitioning.py:32 partitioning.py:94
+msgid "Mount"
+msgstr "Zamontuj"
+
+#: partitioning.py:32
+msgid "Cancel"
+msgstr "Anuluj"
+
+#: partitioning.py:88
+msgid "Create or modify partition on disks with GParted:"
+msgstr "Stwórz lub zmodyfikuj partycje na dyskach z GParted:"
+
+#: partitioning.py:89
+msgid "Run GParted"
+msgstr "Uruchom GParted"
+
+#: partitioning.py:92
+msgid "Partitions:"
+msgstr "Partycje:"
+
+#: partitioning.py:94
+msgid "Unmount"
+msgstr "Odmontuj"
+
+#: partitioning.py:98
+msgid "UEFI installation detected."
+msgstr "Wykryto instalację UEFI."
+
+#: partitioning.py:99
+msgid "EFI partition not mounted!"
+msgstr "Partycja EFI nie jest zamontowana!"
+
+#: partitioning.py:103
+msgid "Choose disk for GRUB installation:"
+msgstr "Wybierz dysk do instalacji GRUB:"
+
+#: partitioning.py:107
+msgid "Save settings"
+msgstr "Zapisz ustawienia"
+
+#: partitioning.py:122
+msgid "EFI partition mounted."
+msgstr "Zamontowano partycję EFI."

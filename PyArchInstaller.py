@@ -153,7 +153,7 @@ def pai_main(lang):
             cs_services = config["Summary"]["Services"]
             cs_installation = config["Summary"]["Installation"]
             if cs_general == "True":
-                window.Element("btn_config").update(button_color=("white", "green"))
+                window.Element("btn_config").update(button_color= ("white", "green"))
             if cs_services == "True":
                 window.Element("btn_services").update(button_color=("white", "green"))
             if cs_desktop == "True":
@@ -172,31 +172,31 @@ def pai_main(lang):
                 break
             if event == "btn_config":
                 ans = True
-                pai_config()
+                pai_config(lang)
                 break
             if event == "btn_de":
                 ans = True
-                pai_de()
+                pai_de(lang)
                 break
             if event == "btn_partitioning":
                 ans = True
-                pai_partitioning()
+                pai_partitioning(lang)
                 break
             if event == "btn_video":
                 ans = True
-                pai_video()
+                pai_video(lang)
                 break
             if event == "btn_services":
                 ans = True
-                pai_services()
+                pai_services(lang)
                 break
             if event == "btn_users":
                 ans = True
-                pai_users()
+                pai_users(lang)
                 break
             if event == "btn_install":
                 ans = True
-                pai_install_wnd()
+                pai_install_wnd(lang)
                 break
         window.close()
 

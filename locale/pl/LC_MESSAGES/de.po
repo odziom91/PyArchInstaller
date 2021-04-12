@@ -1,0 +1,68 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-04-12 13:21+0200\n"
+"PO-Revision-Date: 2021-04-12 13:23+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"X-Poedit-Basepath: ../../../modules\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
+"|| n%100>14) ? 1 : 2);\n"
+"X-Poedit-SearchPath-0: de.py\n"
+
+#: de.py:23
+msgid "Choose Desktop Environment:"
+msgstr "Wybierz środowisko graficzne:"
+
+#: de.py:25
+msgid "Gnome:"
+msgstr "Gnome:"
+
+#: de.py:26 de.py:31 de.py:36 de.py:41
+msgid "Minimal"
+msgstr "Minimalny"
+
+#: de.py:27 de.py:32 de.py:37 de.py:42 de.py:46
+msgid "Full"
+msgstr "Pełny"
+
+#: de.py:30
+msgid "KDE Plasma:"
+msgstr "KDE Plasma:"
+
+#: de.py:35
+msgid "XFCE:"
+msgstr "XFCE:"
+
+#: de.py:40
+msgid "Mate:"
+msgstr "Mate:"
+
+#: de.py:45
+msgid "Cinnamon:"
+msgstr "Cinnamon:"
+
+#: de.py:50
+msgid "Choose Login Manager:"
+msgstr "Wybierz Menedżer logowania:"
+
+#: de.py:51
+msgid "LightDM"
+msgstr "LightDM"
+
+#: de.py:52
+msgid "GDM"
+msgstr "GDM"
+
+#: de.py:53
+msgid "SDDM"
+msgstr "SDDM"
+
+#: de.py:56
+msgid "Save settings"
+msgstr "Zapisz ustawienia"

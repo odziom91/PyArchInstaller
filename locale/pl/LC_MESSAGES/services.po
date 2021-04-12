@@ -1,0 +1,56 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-04-12 13:43+0200\n"
+"PO-Revision-Date: 2021-04-12 13:45+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"X-Poedit-Basepath: ../../../modules\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
+"|| n%100>14) ? 1 : 2);\n"
+"X-Poedit-SearchPath-0: services.py\n"
+
+#: services.py:27
+msgid "Choose services:"
+msgstr "Wybierz usługi:"
+
+#: services.py:28
+msgid "Network Manager - network connections management"
+msgstr "Network Manager - zarządzanie połączeniami sieciowymi"
+
+#: services.py:29
+msgid "DHCP - dynamic IP address assignment"
+msgstr "DHCP - dynamiczne przypisanie adresów IP"
+
+#: services.py:30
+msgid "Wi-Fi - wireless connection support"
+msgstr "Wi-Fi - obsługa sieci bezprzewodowych"
+
+#: services.py:31
+msgid "PPPoE - ADSL/VDSL connection support"
+msgstr "PPPoE - obsługa ADSL/VDSL"
+
+#: services.py:32
+msgid "Mobile - broadband connection support"
+msgstr "Mobile - obsługa sieci komórkowych"
+
+#: services.py:33
+msgid "Bluetooth - Bluetooth support"
+msgstr "Bluetooth - obsługa Bluetooth"
+
+#: services.py:34
+msgid "CUPS - Printers support"
+msgstr "CUPS - obsługa drukarek"
+
+#: services.py:35
+msgid "Multilib - 32-bit repository"
+msgstr "Multilib - repozytorium 32-bitowe"
+
+#: services.py:38
+msgid "Save settings"
+msgstr "Zapisz ustawienia"

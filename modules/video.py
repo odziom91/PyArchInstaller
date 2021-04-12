@@ -11,7 +11,11 @@ import configparser
 from PySimpleGUI import PySimpleGUI as sg
 
 
-def pai_video():
+def pai_video(lang):
+    localedir = './locale'
+    translate = gettext.translation('video', localedir, languages=[lang], fallback=True)
+    translate.install()
+    _ = translate.gettext
     ans = True
     while ans:
         sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
@@ -20,16 +24,16 @@ def pai_video():
             [sg.Image("./gfx/small_logo.png")]
         ]
         video = [
-            [sg.Text("Wybierz sterownik dla karty graficznej: ", size=(35, 1))],
-            [sg.Radio("NVidia - sterownik z obsługą DKMS", group_id=1, key="v_nvdkms", size=(45, 1), enable_events=True)],
-            [sg.Radio("NVidia - sterownik bez obsługi DKMS", group_id=1, key="v_nvnodkms", size=(45, 1), enable_events=True)],
-            [sg.Radio("NVidia - sterownik Nouveau", group_id=1, key="v_nvnouveau", size=(45, 1), enable_events=True)],
-            [sg.Radio("AMD", group_id=1, key="v_amd", size=(15, 1), enable_events=True)],
-            [sg.Radio("Intel", group_id=1, key="v_intel", size=(15, 1), enable_events=True)],
-            [sg.Radio("VirtualBox", group_id=1, key="v_vbox", size=(15, 1), enable_events=True)],
+            [sg.Text(_("Choose video driver: "), size=(35, 1))],
+            [sg.Radio(_("NVidia with DKMS"), group_id=1, key="v_nvdkms", size=(45, 1), enable_events=True)],
+            [sg.Radio(_("NVidia without DKMS"), group_id=1, key="v_nvnodkms", size=(45, 1), enable_events=True)],
+            [sg.Radio(_("NVidia - Nouveau"), group_id=1, key="v_nvnouveau", size=(45, 1), enable_events=True)],
+            [sg.Radio(_("AMD"), group_id=1, key="v_amd", size=(15, 1), enable_events=True)],
+            [sg.Radio(_("Intel"), group_id=1, key="v_intel", size=(15, 1), enable_events=True)],
+            [sg.Radio(_("VirtualBox"), group_id=1, key="v_vbox", size=(15, 1), enable_events=True)],
         ]
         save_settings = [
-            [sg.Button("Zapisz ustawienia", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
+            [sg.Button(_("Save settings"), size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
         ]
         gui = [
             [sg.Column(layout=logo)],

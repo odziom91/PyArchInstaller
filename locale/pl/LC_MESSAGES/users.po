@@ -1,0 +1,44 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-04-12 14:24+0200\n"
+"PO-Revision-Date: 2021-04-12 14:25+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"X-Poedit-Basepath: ../../../modules\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
+"|| n%100>14) ? 1 : 2);\n"
+"X-Poedit-SearchPath-0: users.py\n"
+
+#: users.py:28
+msgid "Root account configuration: "
+msgstr "Konfiguracja konta root: "
+
+#: users.py:29 users.py:34
+msgid "Password: "
+msgstr "Hasło: "
+
+#: users.py:30 users.py:35
+msgid "Repeat password: "
+msgstr "Powtórz hasło: "
+
+#: users.py:31 users.py:37
+msgid "Configure"
+msgstr "Skonfiguruj"
+
+#: users.py:32
+msgid "User account configuration: "
+msgstr "Konfiguracja konta użytkownika: "
+
+#: users.py:33
+msgid "Username: "
+msgstr "Nazwa użytkownika: "
+
+#: users.py:36
+msgid "User with administration rights"
+msgstr "Użytkownik z uprawnieniami administratora"

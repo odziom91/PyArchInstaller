@@ -11,7 +11,11 @@ import configparser
 from PySimpleGUI import PySimpleGUI as sg
 
 
-def pai_config():
+def pai_config(lang):
+    localedir = './locale'
+    translate = gettext.translation('config', localedir, languages=[lang], fallback=True)
+    translate.install()
+    _ = translate.gettext
     sys_lang = open("./lists/locale.gen", "r").read().split("\n")
     kbd_lang = open("./lists/kbd.gen", "r").read().split("\n")
     tz_opt = open("./lists/tz.gen", "r").read().split("\n")
@@ -23,21 +27,21 @@ def pai_config():
             [sg.Image("./gfx/small_logo.png")]
         ]
         configs = [
-            [sg.Text("Nazwa komputera: ", size=(20, 1)), sg.InputText("", enable_events=True, key="hostname", size=(37, 1))],
-            [sg.Text("Język systemu: ", size=(20, 1)), sg.Combo(values=sys_lang, enable_events=True, key="sys", size=(36, 1))],
-            [sg.Text("Język klawiatury: ", size=(20, 1)), sg.Combo(values=kbd_lang, enable_events=True, key="kbd", size=(36, 1))],
-            [sg.Text("Strefa czasowa: ", size=(20, 1)), sg.Combo(values=tz_opt, enable_events=True, key="tz", size=(36, 1))]
+            [sg.Text(_("Hostname:"), size=(20, 1)), sg.InputText("", enable_events=True, key="hostname", size=(37, 1))],
+            [sg.Text(_("System language:"), size=(20, 1)), sg.Combo(values=sys_lang, enable_events=True, key="sys", size=(36, 1))],
+            [sg.Text(_("Keyboard layout:"), size=(20, 1)), sg.Combo(values=kbd_lang, enable_events=True, key="kbd", size=(36, 1))],
+            [sg.Text(_("Time zone:"), size=(20, 1)), sg.Combo(values=tz_opt, enable_events=True, key="tz", size=(36, 1))]
         ]
         kernel = [
-            [sg.Text("Wybierz kernel systemu: ", size=(24, 1))],
-            [sg.Radio("Stable - domyślny, stabilny kernel", group_id=1, key="k_stable", size=(56, 1), enable_events=True)],
-            [sg.Radio("Longterm - kernel z wydłużonym wsparciem", group_id=1, key="k_longterm", size=(56, 1), enable_events=True)],
-            [sg.Radio("Zen - kernel ze wsparciem fsync i futex2", group_id=1, key="k_zen", size=(56, 1), enable_events=True)],
-            [sg.Radio("Hardened - kernel skierowany na bezpieczeństwo systemu", group_id=1, key="k_hardened", size=(56, 1), enable_events=True)],
-            [sg.Text("Ważne!\nJeśli nie jesteś pewien, który kernel wybrać - wybierz Stable. ", size=(56, 3))]
+            [sg.Text(_("Choose kernel:"), size=(24, 1))],
+            [sg.Radio(_("Vanilla - default"), group_id=1, key="k_stable", size=(56, 1), enable_events=True)],
+            [sg.Radio(_("Longterm - Long Time Support"), group_id=1, key="k_longterm", size=(56, 1), enable_events=True)],
+            [sg.Radio(_("Zen - fsync and futex2 support"), group_id=1, key="k_zen", size=(56, 1), enable_events=True)],
+            [sg.Radio(_("Hardened - system security"), group_id=1, key="k_hardened", size=(56, 1), enable_events=True)],
+            [sg.Text(_("Attention!\nIf you do not know which kernel you should use - choose Vanilla."), size=(56, 3))]
         ]
         save_settings = [
-            [sg.Button("Zapisz ustawienia", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
+            [sg.Button(_("Save settings"), size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
         ]
         gui = [
             [sg.Column(layout=logo)],

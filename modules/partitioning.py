@@ -11,21 +11,25 @@ import configparser
 import subprocess
 from PySimpleGUI import PySimpleGUI as sg
 
-def pai_mount(part, size, fstype):
+def pai_mount(lang, part, size, fstype):
+    localedir = './locale'
+    translate = gettext.translation('part', localedir, languages=[lang], fallback=True)
+    translate.install()
+    _ = translate.gettext
     mp = open("./lists/mountpoints.gen", "r").read().split("\n")
     ans = True
     while ans:
         sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
         sg.theme("Dark")
         wnd = [
-            [sg.Text("Wybrałeś dysk: " + part)],
-            [sg.Text("Rozmiar: " + size)],
-            [sg.Text("Typ partycji: " + fstype)],
-            [sg.Text("Wybierz punkt montowania z listy poniżej:", size=(55, 1))],
+            [sg.Text(_("Choosed partition:") + part)],
+            [sg.Text(_("Partition size:") + size)],
+            [sg.Text(_("Partition type:") + fstype)],
+            [sg.Text(_("Choose mountpoint:"), size=(55, 1))],
             [sg.Combo(values=mp, enable_events=True, key="mountpoint", size=(30, 1))],
         ]
         save_settings = [
-            [sg.Button("Montuj", size=(10, 1), pad=((4, 4), (0, 4)), key="btn_mount"), sg.Button("Anuluj", size=(10, 1), pad=((4, 4), (0, 4)), key="btn_cancel")]
+            [sg.Button(_("Mount"), size=(10, 1), pad=((4, 4), (0, 4)), key="btn_mount"), sg.Button(_("Cancel"), size=(10, 1), pad=((4, 4), (0, 4)), key="btn_cancel")]
         ]
         gui = [
             [sg.Column(layout=wnd)],
@@ -58,7 +62,11 @@ def pai_umount(mountpoint):
         print(str(e))
         
 
-def pai_partitioning():
+def pai_partitioning(lang):
+    localedir = './locale'
+    translate = gettext.translation('part', localedir, languages=[lang], fallback=True)
+    translate.install()
+    _ = translate.gettext
     lsblk = subprocess.check_output("lsblk -np --output PATH,SIZE,FSTYPE,TYPE,MOUNTPOINT", shell=True).decode("utf-8").splitlines()
     lsblk_grub = subprocess.check_output("lsblk -npd --output PATH,MODEL,SIZE", shell=True).decode("utf-8").splitlines()
     part = []
@@ -77,26 +85,26 @@ def pai_partitioning():
             [sg.Image("./gfx/small_logo.png")]
         ]
         gparted = [
-            [sg.Text("Utwórz partycje przy pomocy narzędzia 'gparted': ", size=(55, 1))],
-            [sg.Button("Uruchom 'gparted'", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_gparted")],
+            [sg.Text(_("Create or modify partition on disks with GParted:"), size=(55, 1))],
+            [sg.Button(_("Run GParted"), size=(56, 1), pad=((4, 4), (0, 4)), key="btn_gparted")],
         ]
         mount = [
-            [sg.Text("Dostępne partycje: ", size=(35, 1))],
+            [sg.Text(_("Partitions:"), size=(35, 1))],
             [sg.Listbox(part,  size=(57, 7), font=("Monospace Regular", 12), enable_events=True, key="partitions")],
-            [sg.Button("Zamontuj", size=(26, 1), pad=((4, 4), (0, 4)), key="btn_mount"), sg.Button("Odmontuj", size=(26, 1), pad=((4, 4), (0, 4)), key="btn_umount")]
+            [sg.Button(_("Mount"), size=(26, 1), pad=((4, 4), (0, 4)), key="btn_mount"), sg.Button(_("Unmount"), size=(26, 1), pad=((4, 4), (0, 4)), key="btn_umount")]
         ]
         if int(subprocess.check_output("ls /sys/firmware/efi/efivars | wc -l", shell=True)) > 1:
             grub = [
-                [sg.Text("Wykryto instalację z wykorzystaniem UEFI.", size=(55, 1))],
-                [sg.Text("Nie znaleziono poprawnie zamontowanej partycji EFI!", key="efi", size=(55, 1), text_color="red")]
+                [sg.Text(_("UEFI installation detected."), size=(55, 1))],
+                [sg.Text(_("EFI partition not mounted!"), key="efi", size=(55, 1), text_color="red")]
             ]
         else:
             grub = [
-                [sg.Text("Wybierz dysk do instalacji GRUB:", size=(55, 1))],
+                [sg.Text(_("Choose disk for GRUB installation:"), size=(55, 1))],
                 [sg.Combo(values=grub_disk, enable_events=True, key="grub", size=(55, 1))]
             ]
         exit_settings = [
-            [sg.Button("Zapisz ustawienia", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
+            [sg.Button(_("Save settings"), size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
         ]
         gui = [
             [sg.Column(layout=logo)],
@@ -111,7 +119,7 @@ def pai_partitioning():
                 check_bootpart = subprocess.check_output("lsblk -np --output PATH,MOUNTPOINT", shell=True).decode("utf-8").splitlines()
                 for line in check_bootpart:
                     if ("/mnt/boot" in line) or ("/mnt/boot/efi" in line) and ("vfat" in line):
-                        window.Element("efi").update(value="Znaleziono zamontowaną poprawnie partycję EFI.", text_color="white")
+                        window.Element("efi").update(value=_("EFI partition mounted."), text_color="white")
             event, values = window.read()
             if event == sg.WIN_CLOSED:
                 ans = False
@@ -130,7 +138,7 @@ def pai_partitioning():
             if event == "btn_mount":
                 try:
                     sel_part_split = str(values["partitions"][0]).split()
-                    pai_mount(sel_part_split[0], sel_part_split[1], sel_part_split[2])
+                    pai_mount(lang, sel_part_split[0], sel_part_split[1], sel_part_split[2])
                     lsblk = subprocess.check_output("lsblk -np --output PATH,SIZE,FSTYPE,TYPE,MOUNTPOINT", shell=True).decode("utf-8").splitlines()
                     part = []
                     for line in lsblk:

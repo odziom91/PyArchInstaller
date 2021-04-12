@@ -11,7 +11,11 @@ import configparser
 from PySimpleGUI import PySimpleGUI as sg
 
 
-def pai_services():
+def pai_services(lang):
+    localedir = './locale'
+    translate = gettext.translation('services', localedir, languages=[lang], fallback=True)
+    translate.install()
+    _ = translate.gettext
     ans = True
     while ans:
         sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
@@ -20,18 +24,18 @@ def pai_services():
             [sg.Image("./gfx/small_logo.png")]
         ]
         services = [
-            [sg.Text("Wybierz usługi z listy poniżej: ", size=(35, 1))],
-            [sg.Checkbox("Network Manager - zarządzanie połączeniami siecowymi", key="s_nm")],
-            [sg.Checkbox("Usługa DHCP - dynamiczne przypisanie adresu IP", key="s_dhcp")],
-            [sg.Checkbox("Wi-Fi - obsługa bezprzewodowego połączenia sieciowego", key="s_wifi")],
-            [sg.Checkbox("PPPoE - obsługa połączeń sieciowych PPPoE (np.: ADSL/VDSL)", key="s_pppoe")],
-            [sg.Checkbox("Mobile - obsługa połączeń przy pomocy sieci komórkowej", key="s_mobile")],
-            [sg.Checkbox("Bluetooth - obsługa urządzeń Bluetooth", key="s_bt")],
-            [sg.Checkbox("Usługa CUPS - serwer druku do obsługi drukarek", key="s_cups")],
-            [sg.Checkbox("Multilib - repozytorium z pakietami 32-bitowymi", key="s_multilib")]
+            [sg.Text(_("Choose services:"), size=(35, 1))],
+            [sg.Checkbox(_("Network Manager - network connections management"), key="s_nm")],
+            [sg.Checkbox(_("DHCP - dynamic IP address assignment"), key="s_dhcp")],
+            [sg.Checkbox(_("Wi-Fi - wireless connection support"), key="s_wifi")],
+            [sg.Checkbox(_("PPPoE - ADSL/VDSL connection support"), key="s_pppoe")],
+            [sg.Checkbox(_("Mobile - broadband connection support"), key="s_mobile")],
+            [sg.Checkbox(_("Bluetooth - Bluetooth support"), key="s_bt")],
+            [sg.Checkbox(_("CUPS - Printers support"), key="s_cups")],
+            [sg.Checkbox(_("Multilib - 32-bit repository"), key="s_multilib")]
         ]
         save_settings = [
-            [sg.Button("Zapisz ustawienia", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
+            [sg.Button(_("Save settings"), size=(56, 1), pad=((4, 4), (0, 4)), key="btn_save")]
         ]
         gui = [
             [sg.Column(layout=logo)],

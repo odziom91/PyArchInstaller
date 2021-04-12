@@ -12,9 +12,12 @@ import subprocess
 from PySimpleGUI import PySimpleGUI as sg
 
 
-def pai_users():
+def pai_users(lang):
+    localedir = './locale'
+    translate = gettext.translation('users', localedir, languages=[lang], fallback=True)
+    translate.install()
+    _ = translate.gettext
     ans = True
-
     while ans:
         sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
         sg.theme("Dark")
@@ -22,16 +25,16 @@ def pai_users():
             [sg.Image("./gfx/small_logo.png")]
         ]
         users = [
-            [sg.Text("Konfiguracja roota: ", size=(35, 1))],
-            [sg.Text("Hasło: ", size=(24, 1)), sg.InputText("", enable_events=True, key="rootpwd", size=(32, 1))],
-            [sg.Text("Powtórz hasło: ", size=(24, 1)), sg.InputText("", enable_events=True, key="r_rootpwd", size=(32, 1))],
-            [sg.Button("Skonfiguruj hasło roota", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_root", enable_events=True)],
-            [sg.Text("Konfiguracja użytkownika: ", size=(35, 1))],
-            [sg.Text("Nazwa użytkownika: ", size=(25,1)), sg.InputText("", enable_events=True, key="username", size=(32, 1))],
-            [sg.Text("Hasło: ", size=(25,1)), sg.InputText("", enable_events=True, key="userpwd", size=(32, 1))],
-            [sg.Text("Powtórz hasło: ", size=(25,1)), sg.InputText("", enable_events=True, key="r_userpwd", size=(32, 1))],
-            [sg.Checkbox("Użytkownik z uprawnieniami administratora", key="admin")],
-            [sg.Button("Skonfiguruj użytkownika", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_user", enable_events=True)]
+            [sg.Text(_("Root account configuration: "), size=(35, 1))],
+            [sg.Text(_("Password: "), size=(24, 1)), sg.InputText("", enable_events=True, key="rootpwd", size=(32, 1))],
+            [sg.Text(_("Repeat password: "), size=(24, 1)), sg.InputText("", enable_events=True, key="r_rootpwd", size=(32, 1))],
+            [sg.Button(_("Configure"), size=(56, 1), pad=((4, 4), (0, 4)), key="btn_root", enable_events=True)],
+            [sg.Text(_("User account configuration: "), size=(35, 1))],
+            [sg.Text(_("Username: "), size=(25,1)), sg.InputText("", enable_events=True, key="username", size=(32, 1))],
+            [sg.Text(_("Password: "), size=(25,1)), sg.InputText("", enable_events=True, key="userpwd", size=(32, 1))],
+            [sg.Text(_("Repeat password: "), size=(25,1)), sg.InputText("", enable_events=True, key="r_userpwd", size=(32, 1))],
+            [sg.Checkbox(_("User with administration rights"), key="admin")],
+            [sg.Button(_("Configure"), size=(56, 1), pad=((4, 4), (0, 4)), key="btn_user", enable_events=True)]
         ]
         gui = [
             [sg.Column(layout=logo)],

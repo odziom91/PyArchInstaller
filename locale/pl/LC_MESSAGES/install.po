@@ -1,0 +1,124 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2021-04-12 14:26+0200\n"
+"PO-Revision-Date: 2021-04-12 14:31+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.1\n"
+"X-Poedit-Basepath: ../../../modules\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
+"|| n%100>14) ? 1 : 2);\n"
+"X-Poedit-SearchPath-0: installation.py\n"
+
+#: installation.py:240
+msgid "Base+Kernel installation"
+msgstr "Instalacja Base+Kernel"
+
+#: installation.py:254
+msgid "Generate fstab file"
+msgstr "Generowanie pliku fstab"
+
+#: installation.py:261
+msgid "Generate mirrorlist"
+msgstr "Generowanie listy serwerów lustrzanych"
+
+#: installation.py:267
+msgid "Multilib repository configuration"
+msgstr "Konfiguracja repozytorium Multilib"
+
+#: installation.py:280
+msgid "Repository update"
+msgstr "Aktualizacja repozytoriów"
+
+#: installation.py:290
+msgid "Hostname configuration"
+msgstr "Konfiguracja nazwy hosta"
+
+#: installation.py:295
+msgid "Time zone configuration"
+msgstr "Konfiguracja strefy czasowej"
+
+#: installation.py:300
+msgid "System language configuration"
+msgstr "Konfiguracja języka systemu"
+
+#: installation.py:310
+msgid "Desktop Environment installation"
+msgstr "Instalacja środowiska graficznego"
+
+#: installation.py:333
+msgid "Login Manager installation"
+msgstr "Instalacja menedżera logowania"
+
+#: installation.py:348
+msgid "Video driver installation"
+msgstr "Instalacja sterownika wideo"
+
+#: installation.py:375
+msgid "Sound server installation"
+msgstr "Instalacja serwera dźwięku"
+
+#: installation.py:381
+msgid "Codecs installation"
+msgstr "Instalacja kodeków"
+
+#: installation.py:386
+msgid "Fonts installation"
+msgstr "Instalacja czcionek"
+
+#: installation.py:396
+msgid "Network Manager installation"
+msgstr "Instalacja menedżera sieci"
+
+#: installation.py:408
+msgid "DHCP service installation"
+msgstr "Instalacja usługi DHCP"
+
+#: installation.py:416
+msgid "Wi-Fi support installation"
+msgstr "Instalacja obsługi połączeń bezprzewodowych Wi-Fi"
+
+#: installation.py:422
+msgid "PPPoE support installation"
+msgstr "Instalacja obsługi PPPoE"
+
+#: installation.py:428
+msgid "Broadband support installation"
+msgstr "Instalacja obsługi połączeń komórkowych"
+
+#: installation.py:434
+msgid "Bluetooth support installation"
+msgstr "Instalacja obsługi Bluetooth"
+
+#: installation.py:441
+msgid "NTFS support installation"
+msgstr "Instalacja obsługi systemu plików NTFS"
+
+#: installation.py:447
+msgid "CUPS - Printing service installation"
+msgstr "Instalacja usługi drukowania - CUPS"
+
+#: installation.py:454
+msgid "Keyboard layout configuration"
+msgstr "Konfiguracja układu klawiatury"
+
+#: installation.py:464
+msgid "Bootloader installation"
+msgstr "Instalacja bootloadera"
+
+#: installation.py:474
+msgid "Installation complete - please close this window."
+msgstr "Instalacja zakończona - proszę zamknąć to okno."
+
+#: installation.py:490
+msgid "ArchLinux Installation"
+msgstr "Instalacja ArchLinux"
+
+#: installation.py:495
+msgid "Install ArchLinux"
+msgstr "Zainstaluj ArchLinux"

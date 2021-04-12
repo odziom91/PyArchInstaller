@@ -181,7 +181,7 @@ def pai_update_repo():
     setup.write('exit\n')
     setup.close()
 
-def pai_installation(window):
+def pai_installation(lang, window):
     ###
     ### start installation
     ###
@@ -237,7 +237,7 @@ def pai_installation(window):
     ### install base + kernel
     ###
     window["-PROBAR-"].update_bar(10)
-    window["-STATUS-"].update("Status: Instalacja systemu - base+kernel - może potrwać kilka minut...")
+    window["-STATUS-"].update(_("Base+Kernel installation"))
     if cfg_kernel == "stable":
         subprocess.call("pacstrap /mnt base base-devel linux linux-firmware linux-headers sudo nano dialog reflector", shell=True)
     if cfg_kernel == "longterm":
@@ -251,20 +251,20 @@ def pai_installation(window):
     ### generate fstab file
     ###
     window["-PROBAR-"].update_bar(15)
-    window["-STATUS-"].update("Status: Generowanie pliku fstab")
+    window["-STATUS-"].update(_("Generate fstab file"))
     subprocess.call("genfstab -U /mnt >> /mnt/etc/fstab", shell=True)
     
     ###
     ### config mirrorlist
     ###
     window["-PROBAR-"].update_bar(20)
-    window["-STATUS-"].update("Status: Konfiguracja mirrorlist")
+    window["-STATUS-"].update(_("Generate mirrorlist"))
     subprocess.call("cp /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist", shell=True)
     subprocess.call("pacman -Syy", shell=True)
     # config multilib if enabled
     if cfg_multilib == "true":
         window["-PROBAR-"].update_bar(25)
-        window["-STATUS-"].update("Status: Konfiguracja repozytorium multilib")
+        window["-STATUS-"].update(_("Multilib repository configuration"))
         subprocess.call("echo \"\" >> /mnt/etc/pacman.conf", shell=True)    
         subprocess.call("echo \"[multilib]\" >> /mnt/etc/pacman.conf", shell=True)
         subprocess.call("echo \"Include = /etc/pacman.d/mirrorlist\" >> /mnt/etc/pacman.conf", shell=True)
@@ -277,7 +277,7 @@ def pai_installation(window):
 
     ### update repo
     window["-PROBAR-"].update_bar(30)
-    window["-STATUS-"].update("Status: Aktualizacja repozytoriów")
+    window["-STATUS-"].update(_("Repository update"))
     pai_update_repo()
     pai_chroot("update_repo")
 
@@ -287,17 +287,17 @@ def pai_installation(window):
 
     ### config hostname
     window["-PROBAR-"].update_bar(35)
-    window["-STATUS-"].update("Status: Konfiguracja hostname")
+    window["-STATUS-"].update(_("Hostname configuration"))
     pai_hostname(cfg_hostname)
     pai_chroot("hostname")
     ### config timezone
     window["-PROBAR-"].update_bar(40)
-    window["-STATUS-"].update("Status: Konfiguracja strefy czasowej")
+    window["-STATUS-"].update(_("Time zone configuration"))
     pai_timezone(cfg_tz)
     pai_chroot("tz")
     ### config language
     window["-PROBAR-"].update_bar(45)
-    window["-STATUS-"].update("Status: Konfiguracja lokalizacji systemowej")
+    window["-STATUS-"].update(_("System language configuration"))
     pai_lang(cfg_lang)
     pai_chroot("lang")
 
@@ -307,7 +307,7 @@ def pai_installation(window):
 
     ### install desktop
     window["-PROBAR-"].update_bar(50)
-    window["-STATUS-"].update("Status: Instalacja środowiska graficznego")
+    window["-STATUS-"].update(_("Desktop Environment installation"))
     # desktop
     if cfg_desktop == "gnome_minimal":
         pai_install("de", gnome_minimal)
@@ -330,7 +330,7 @@ def pai_installation(window):
     pai_chroot("de")
     ### install login manager
     window["-PROBAR-"].update_bar(55)
-    window["-STATUS-"].update("Status: Instalacja menedżera logowania")
+    window["-STATUS-"].update(_("Login Manager installation"))
     # login manager
     if cfg_lm == "lightdm":
         pai_install("lm", lightdm)
@@ -345,7 +345,7 @@ def pai_installation(window):
     pai_chroot("lm_service")
     ### install video driver
     window["-PROBAR-"].update_bar(60)
-    window["-STATUS-"].update("Status: Instalacja sterownika wideo")
+    window["-STATUS-"].update(_("Video driver installation"))
     pai_install("vesa_mesa", vesa_mesa)
     pai_install("xorg", xorg)
     pai_chroot("vesa_mesa")
@@ -372,18 +372,18 @@ def pai_installation(window):
         pai_chroot("video_service")
     ### install sound server
     window["-PROBAR-"].update_bar(65)
-    window["-STATUS-"].update("Status: Instalacja serwera dźwięku")
+    window["-STATUS-"].update(_("Sound server installation"))
     # todo pipewire support
     pai_install("sound", pulseaudio)
     pai_chroot("sound")
     ### install codecs
     window["-PROBAR-"].update_bar(70)
-    window["-STATUS-"].update("Status: Instalacja kodeków")
+    window["-STATUS-"].update(_("Codecs installation"))
     pai_install("codecs", codecs)
     pai_chroot("codecs")
     ### install fonts
     window["-PROBAR-"].update_bar(75)
-    window["-STATUS-"].update("Status: Instalacja wymaganych czcionek")
+    window["-STATUS-"].update(_("Fonts installation"))
     pai_install("fonts", fonts)
     
     ###
@@ -393,7 +393,7 @@ def pai_installation(window):
     ### install network mananger
     if cfg_nm == "true":
         window["-PROBAR-"].update_bar(80)
-        window["-STATUS-"].update("Status: Instalacja Network Manager")
+        window["-STATUS-"].update(_("Network Manager installation"))
         if "plasma" in cfg_desktop:
             pai_install("nm", nm_plasma)
             pai_service("nm_service", "NetworkManager.service")
@@ -405,7 +405,7 @@ def pai_installation(window):
     ### install DHCP
     if cfg_dhcp == "true":
         window["-PROBAR-"].update_bar(81)
-        window["-STATUS-"].update("Status: Instalacja usługi DHCP")
+        window["-STATUS-"].update(_("DHCP service installation"))
         pai_install("dhcp", dhcp)
         pai_service("dhcp_service", "dhcpcd.service")
         pai_chroot("dhcp")
@@ -413,45 +413,45 @@ def pai_installation(window):
     ### install wifi
     if cfg_wifi == "true":
         window["-PROBAR-"].update_bar(82)
-        window["-STATUS-"].update("Status: Instalacja obsługi sieci Wi-Fi")
+        window["-STATUS-"].update(_("Wi-Fi support installation"))
         pai_install("wifi", wifi)
         pai_chroot("wifi")
     ### install pppoe
     if cfg_pppoe == "true":
         window["-PROBAR-"].update_bar(83)
-        window["-STATUS-"].update("Status: Instalacja obsługi sieci PPPoE")
+        window["-STATUS-"].update(_("PPPoE support installation"))
         pai_install("pppoe", pppoe)
         pai_chroot("pppoe")
     ### install mobile
     if cfg_mobile == "true":
         window["-PROBAR-"].update_bar(84)
-        window["-STATUS-"].update("Status: Instalacja obsługi sieci komórkowych")
+        window["-STATUS-"].update(_("Broadband support installation"))
         pai_install("mobile", mobile)
         pai_chroot("mobile")
     ### install bluetooth
     if cfg_bt == "true":
         window["-PROBAR-"].update_bar(85)
-        window["-STATUS-"].update("Status: Instalacja obsługi Bluetooth")
+        window["-STATUS-"].update(_("Bluetooth support installation"))
         pai_install("bluetooth", bluetooth)
         pai_service("bluetooth_service", "bluetooth")
         pai_chroot("bluetooth")
         pai_chroot("bluetooth_service")
     ### install NTFS
     window["-PROBAR-"].update_bar(86)
-    window["-STATUS-"].update("Status: Instalacja obsługi plików NTFS")
+    window["-STATUS-"].update(_("NTFS support installation"))
     pai_install("ntfs", ntfs)
     pai_chroot("ntfs")
     ### install CUPS
     if cfg_cups == "true":
         window["-PROBAR-"].update_bar(87)
-        window["-STATUS-"].update("Status: Instalacja serwera druku CUPS")
+        window["-STATUS-"].update(_("CUPS - Printing service installation"))
         pai_install("cups", cups)
         pai_service("cups_service", "cupsd.service")
         pai_chroot("cups")
         pai_chroot("cups_service")
     ### keyboard layout configuration
     window["-PROBAR-"].update_bar(90)
-    window["-STATUS-"].update("Status: Konfiguracja klawiatury")
+    window["-STATUS-"].update(_("Keyboard layout configuration"))
     pai_kbd(cfg_kbd)
     pai_chroot("kbd")
 
@@ -461,7 +461,7 @@ def pai_installation(window):
 
     ### install bootloader
     window["-PROBAR-"].update_bar(95)
-    window["-STATUS-"].update("Status: Instalacja bootloadera")
+    window["-STATUS-"].update(_("Bootloader installation"))
     if int(subprocess.check_output("ls /sys/firmware/efi/efivars | wc -l", shell=True)) > 1:
         pai_install("grub", grub_uefi)
         pai_grub("grub_config", "true")
@@ -471,14 +471,14 @@ def pai_installation(window):
     pai_chroot("grub")
     pai_chroot("grub_config")    
     window["-PROBAR-"].update_bar(100)
-    window["-STATUS-"].update("Status: Instalacja zakończona!")
+    window["-STATUS-"].update(_("Installation complete - please close this window."))
     config.set('Summary', 'Installation', 'True')
     with open('config/settings.cfg', 'w') as configfile:
         config.write(configfile)
 
 
 
-def pai_install_wnd():
+def pai_install_wnd(lang):
     ans = True
     while ans:
         sg.SetOptions(font=("Monospace Regular", 12), margins=(0, 0))
@@ -487,12 +487,12 @@ def pai_install_wnd():
             [sg.Image("./gfx/small_logo.png")]
         ]
         install = [
-            [sg.Text("Instalacja systemu ArchLinux", size=(35, 1))],
+            [sg.Text(_("ArchLinux Installation"), size=(35, 1))],
             [sg.ProgressBar(100, orientation='h', size=(62, 30), key='-PROBAR-')],
             [sg.Text("", size=(62, 1), key='-STATUS-')]
         ]
         run_installer = [
-            [sg.Button("Rozpocznij instalację!", size=(56, 1), pad=((4, 4), (0, 4)), key="btn_run")]
+            [sg.Button(_("Install ArchLinux"), size=(56, 1), pad=((4, 4), (0, 4)), key="btn_run")]
         ]
         gui = [
             [sg.Column(layout=logo)],
@@ -509,7 +509,7 @@ def pai_install_wnd():
                 try:
                     window.Element("btn_run").update(disabled=True)
                     ans = False
-                    x = threading.Thread(target=pai_installation, args=(window, ))
+                    x = threading.Thread(target=pai_installation, args=(lang, window, ))
                     x.start()
                 except Exception as e:
                     print(str(e))
