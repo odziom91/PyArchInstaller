@@ -1,5 +1,9 @@
 # changelog
 
+## [0.2.1] - 2021-04-12
+### Added
+- Multilanguage support (Polish and English)
+
 ## [0.2] - 2021-04-12
 ### Added
 - First implementation of multilanguage support (only in main menu - test)
