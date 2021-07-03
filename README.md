@@ -1,10 +1,5 @@
-# Z powodu braku zainteresowania,
-# jak również czasu i chęci
-# archiwizuję projekt
-# PyArchInstaller
-#
-# Zapraszam do skorzystania z
-# "dupodajki" na GitHubie:
+# Z powodu braku zainteresowania,jak również czasu i chęci - archiwizuję projekt PyArchInstaller
+# Zapraszam do skorzystania z "dupodajki" na GitHubie:
 # https://github.com/odziom91/dupodajka
 
 # PyArchInstaller
